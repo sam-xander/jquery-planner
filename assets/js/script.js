@@ -1,21 +1,19 @@
-var textArea = $("textarea");
-var scheduleElement = $("#schedule");
+let scheduleElement = $("#schedule");
+let schedule = [];
 
-var schedule = [];
-
-// function that gets the date and adds to #currentDay
+// function that gets the date and prints to #currentDay element
 function getDay() {
-  var currentDay = moment().format("dddd, MMMM Do");
-  var date = $("#currentDay");
+  let currentDay = moment().format("dddd, MMMM Do");
+  let date = $("#currentDay");
   date.text(currentDay);
 }
 getDay();
 
-// loop over 9 - 5 and make an object for each with time and input properties
-var hour = moment(09, "HH");
+// loop over 9 - 5 and make an object for each with time and input properties --> pushes into shedule array --> stores into local storage
+let hour = moment(09, "HH");
 
-for (var i = 1; i < 10; i++) {
-  var block = {
+for (let i = 1; i < 10; i++) {
+  let block = {
     time: hour.format("ha"),
     input: "",
   };
@@ -25,6 +23,7 @@ for (var i = 1; i < 10; i++) {
   hour.add(1, "h");
 }
 
+// updates the object in the schedule array that matches the specific time
 function updateSchedule(input, time) {
   schedule.forEach(function (block) {
     if (block.time === time) {
@@ -35,28 +34,31 @@ function updateSchedule(input, time) {
   addToLocalStorage(schedule);
 }
 
+// loops over the schedule array and outputs each object to the page and adds color classes depending on the currentTime
 function renderSchedule(schedule) {
   scheduleElement.html("");
 
   schedule.forEach(function (block) {
-    var state = block.time;
+    let state = block.time;
     state = state.slice(0, block.time.length - 2);
+    state = Number(state);
 
     if (state < 6) {
-      state = +state + 12;
+      state = state + 12;
     }
-    console.log(+state);
-    var currentTime = moment().format("H");
-    console.log(+currentTime);
-    if (+state < +currentTime) {
+
+    let currentTime = moment().format("H");
+    currentTime = Number(currentTime);
+
+    if (state < currentTime) {
       state = "past";
-    } else if (+state === +currentTime) {
+    } else if (state === currentTime) {
       state = "present";
     } else {
       state = "future";
     }
 
-    var blockElement = $(
+    let blockElement = $(
       `
       <div class="row time-block">
         <div class="hour">${block.time}</div>
@@ -72,13 +74,15 @@ function renderSchedule(schedule) {
   });
 }
 
+// updates the local storage with the schedule array then calls renderSchedule function
 function addToLocalStorage(schedule) {
   localStorage.setItem("schedule", JSON.stringify(schedule));
   renderSchedule(schedule);
 }
 
+// gets the local storage array and updates the schedule array
 function getFromLocalStorage() {
-  var storage = localStorage.getItem("schedule");
+  let storage = localStorage.getItem("schedule");
 
   if (storage) {
     schedule = JSON.parse(storage);
@@ -88,9 +92,10 @@ function getFromLocalStorage() {
 
 getFromLocalStorage();
 
+// save button click event
 scheduleElement.on("click", ".saveBtn", function () {
-  var input = $(this).prev().val();
-  var time = $(this).prev().prev().text();
+  let input = $(this).prev().val();
+  let time = $(this).prev().prev().text();
   console.log($(this));
 
   updateSchedule(input, time);
